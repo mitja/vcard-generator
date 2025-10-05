@@ -175,10 +175,21 @@ def index():
         method="post", action="/generate", cls="space-y-2"
     )
 
+    footer = Footer(
+        Div(
+            A("Made by Mitja Martini", href="https://mitjamartini.com/about/", cls="link link-hover"),
+            A("Privacy", href="https://mitjamartini.com/privacy/", cls="link link-hover"),
+            cls="flex gap-4 justify-center"
+        ),
+        cls="footer footer-center p-4 mt-8"
+    )
+
     content = Card(
         #H1("vCard/VCF Generator"),
         P("Erzeugt eine .vcf-Datei im vCard 3.0 Format. Keine Daten werden gespeichert."),
-        form, cls="mt-4"
+        form,
+        footer,
+        cls="mt-4"
     )
     return Titled("vCard/VCF Generator", content)
 
