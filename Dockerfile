@@ -20,10 +20,10 @@ COPY app.py /app/app.py
 RUN adduser --disabled-password --gecos "" appuser && chown -R appuser:appuser /app
 USER appuser
 
-EXPOSE 8000
+EXPOSE 80
 
 # Healthcheck: Try the root path
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD python - <<'PY'\nimport urllib.request, sys\ntry:\n    with urllib.request.urlopen('http://127.0.0.1:8000', timeout=3) as r:\n        sys.exit(0 if r.status==200 else 1)\nexcept Exception:\n    sys.exit(1)\nPY
 
 # Run with uvicorn directly (FastHTML supplies 'app' ASGI)
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]

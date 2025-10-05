@@ -60,15 +60,6 @@ These steps assume:
 dokku apps:create vcard-generator
 ```
 
-### Set the domain
-
-```bash
-# Add the custom domain
-dokku domains:add vcard-generator vcard-generator.mitja.app
-# (Optional) Remove the default subdomain if present
-# dokku domains:clear vcard-generator && dokku domains:add vcard-generator vcard-generator.mitja.app
-```
-
 Ensure your DNS has an A (and/or AAAA) record pointing vcard-generator.mitja.app to your Dokku host.
 
 ### 3) Configure proxy port mapping
