@@ -3,6 +3,8 @@
 A tiny FastHTML app that builds **vCard 3.0 (.vcf)** files from a basic MonsterUI form.  
 No persistence, just generates and streams the file to your browser.
 
+Live on [vcard-generator.mitja.app](https://vcard-generator.mitja.app).
+
 ## Features
 
 - vCard 3.0 output with:
@@ -15,11 +17,10 @@ No persistence, just generates and streams the file to your browser.
 
 ## Local Development
 
-### Prereqs
+Prerequisites:
+
 - Python 3.11+
 - [uv](https://github.com/astral-sh/uv) (Python package manager)
-
-### Setup & run
 
 ```bash
 # 1) Install deps with uv (system or venv, your choice)
@@ -41,57 +42,33 @@ open http://127.0.0.1:8000
 docker build -t vcard-generator:latest .
 
 # Run container
-docker run --rm -p 8000:8000 vcard-generator:latest
+docker run --rm -p 8888:80 vcard-generator:latest
 
 # Open
-open http://127.0.0.1:8000
+open http://127.0.0.1:8888
 ```
 
-## Deployment on Dokku
+## Deploy to Dokku host
 
-These steps assume:
+Prerequisites
 
 * You have a Dokku host ready (with a domain, DNS pointing to the host)
-* You want a public URL like https://vcard-generator.mitja.app (used here)
-
-### Create the Dokku app
+* You have aliased `dokku` like this `dokku='ssh dokku@mitja.app'`
+* You want a public URL like `https://vcard-generator.mitja.app`
 
 ```bash
+# 1) Create the Dokku app
 dokku apps:create vcard-generator
-```
 
-Ensure your DNS has an A (and/or AAAA) record pointing vcard-generator.mitja.app to your Dokku host.
-
-### 3) Configure proxy port mapping
-
-Our app listens on 8000 inside the container; map it to HTTP(80):
-
-```bash
-dokku proxy:ports-set vcard-generator http:80:8000
-```
-
-### Enable HTTPS (Let’s Encrypt)
-
-```bash
-dokku config:set vcard-generator DOKKU_LETSENCRYPT_EMAIL=you@mitja.app
-dokku letsencrypt:enable vcard-generator
-# auto-renew
-dokku letsencrypt:cron-job --add
-```
-
-### Add the dokku host as git remote
-
-```bash
-# Add Dokku remote (replace host)
+# 2) Add Dokku remote (replace YOUR_DOKKU_HOST)
 git remote add dokku dokku@YOUR_DOKKU_HOST:vcard-generator
-```
 
-### Git Push to deploy
-
-```bash
+# 3) Push to deploy
 git push dokku main
+
+# 4) Enable https (Let’s Encrypt)
+dokku letsencrypt:enable vcard-generator
+
+# 5) Check (should return HTTP/2 200)
+curl -I https://vcard-generator.mitja.app
 ```
-
-### Check
-
-```curl -I https://vcard-generator.mitja.app```
