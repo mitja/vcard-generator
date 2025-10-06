@@ -8,10 +8,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install runtime deps with uv (no optional vcard package)
-# (Using a requirements.txt inline keeps Docker layer caching effective.)
-RUN printf "python-fasthtml\nMonsterUI\nuvicorn\n" > requirements.txt \
- && uv pip install --system -r requirements.txt
+# Copy pyproject.toml first for better layer caching
+COPY pyproject.toml /app/
+
+# Install runtime dependencies from pyproject.toml
+RUN uv pip install --system .
 
 # Copy the app
 COPY app.py /app/app.py
