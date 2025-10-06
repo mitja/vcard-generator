@@ -23,8 +23,10 @@ Prerequisites:
 - [uv](https://github.com/astral-sh/uv) (Python package manager)
 
 ```bash
-# 1) Install deps with uv (system or venv, your choice)
-uv pip install --system python-fasthtml MonsterUI uvicorn
+# 1) Create a virtual environment and install dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e .
 
 # 2) Run the app
 python app.py
@@ -33,6 +35,51 @@ uvicorn app:app --reload
 
 # 3) Open
 open http://127.0.0.1:8000
+```
+
+## Testing
+
+Prerequisites:
+
+- Python 3.11+
+- [uv](https://github.com/astral-sh/uv)
+- [zbar](https://github.com/mchehab/zbar) library (for QR code reading in tests)
+
+### Install test dependencies
+
+```bash
+# Install zbar system library
+# macOS:
+brew install zbar
+
+# Linux (Debian/Ubuntu):
+sudo apt-get install libzbar0
+
+# Windows:
+# Download and install from https://sourceforge.net/projects/zbar/
+
+# Install Python dev dependencies
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+```
+
+### Run tests
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run all tests
+DYLD_LIBRARY_PATH=/opt/homebrew/opt/zbar/lib:$DYLD_LIBRARY_PATH pytest test_vcard.py -v
+
+# On Linux, you might not need DYLD_LIBRARY_PATH:
+pytest test_vcard.py -v
+
+# Run specific test class
+pytest test_vcard.py::TestQRCodeGeneration -v
+
+# Run a single test
+pytest test_vcard.py::TestQRCodeGeneration::test_qr_code_scanning -v
 ```
 
 ## Build and run as Docker container

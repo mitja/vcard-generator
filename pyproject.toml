@@ -11,6 +11,18 @@ dependencies = [
     "segno"
 ]
 
+[tool.setuptools]
+py-modules = ["app"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "vobject",
+    "pillow",
+    "qreader"
+]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
