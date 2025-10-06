@@ -22,7 +22,7 @@ A minimal FastHTML web application that generates vCard 3.0 (.vcf) files with QR
 - `test_integration.sh` - Convenience script for running integration tests
 - `pyproject.toml` - Project dependencies and build configuration
 - `Dockerfile` - Container configuration for deployment
-- `.github/workflows/integration-tests.yml` - CI/CD workflow for automated testing
+- `.github/workflows/tests.yml` - CI/CD workflow for unit and integration tests
 
 ## Development Workflow
 

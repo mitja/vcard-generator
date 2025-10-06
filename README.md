@@ -115,6 +115,15 @@ pytest test_integration.py::TestQRCodeGeneration -v
 - Clean up the container when done
 - Tests take ~1-2 minutes to complete
 
+## CI/CD
+
+The project includes GitHub Actions workflows that automatically run on push and pull requests:
+
+- **Unit Tests**: Run on every push, test vCard generation and QR code functionality
+- **Integration Tests**: Run after unit tests pass, verify Docker deployment
+
+Workflows are defined in `.github/workflows/tests.yml`
+
 ## Build and run as Docker container
 
 ```bash
