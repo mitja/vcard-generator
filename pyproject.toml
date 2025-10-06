@@ -23,6 +23,11 @@ dev = [
     "qreader"
 ]
 
+integration = [
+    "pytest",
+    "requests"
+]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

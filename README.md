@@ -69,7 +69,7 @@ uv pip install -e ".[dev]"
 # Activate virtual environment
 source .venv/bin/activate
 
-# Run all tests
+# Run unit tests
 DYLD_LIBRARY_PATH=/opt/homebrew/opt/zbar/lib:$DYLD_LIBRARY_PATH pytest test_vcard.py -v
 
 # On Linux, you might not need DYLD_LIBRARY_PATH:
@@ -81,6 +81,39 @@ pytest test_vcard.py::TestQRCodeGeneration -v
 # Run a single test
 pytest test_vcard.py::TestQRCodeGeneration::test_qr_code_scanning -v
 ```
+
+## Integration Testing
+
+Integration tests verify the complete Docker deployment, including HTTP endpoints, vCard generation, and QR code generation.
+
+### Prerequisites
+
+```bash
+# Docker must be running
+# Install integration test dependencies
+source .venv/bin/activate
+uv pip install -e ".[integration]"
+```
+
+### Run integration tests
+
+```bash
+# Using the test script (recommended)
+./test_integration.sh
+
+# Or directly with pytest
+pytest test_integration.py -v
+
+# Run specific test class
+pytest test_integration.py::TestQRCodeGeneration -v
+```
+
+**Note:** Integration tests will:
+- Build a Docker image (`vcard-generator:test`)
+- Start a container on port 8889
+- Run all HTTP endpoint tests
+- Clean up the container when done
+- Tests take ~1-2 minutes to complete
 
 ## Build and run as Docker container
 
