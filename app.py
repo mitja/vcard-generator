@@ -2,6 +2,8 @@ from fasthtml.common import *
 from monsterui.all import *
 import datetime
 import re
+import segno
+import io
 
 # ---------- FastHTML App setup with MonsterUI theme ----------
 
@@ -12,7 +14,8 @@ app, rt = fast_app(hdrs=hdrs)
 
 def _escape(text: str) -> str:
     """Escape commas, semicolons, and newlines per vCard rules.
-    vCard 3.0 requires escaping "," ";" and "\n" as \, \; and \n in property values.
+    vCard 3.0 requires escaping "," ";" and "\n" as <backslash>, <backslash>; 
+    and <backslash>n in property values.
     """
     if text is None:
         return ""
@@ -109,6 +112,15 @@ def build_vcard(data: dict) -> str:
     return vcf
 
 
+def generate_qr_code(vcf_data: str) -> bytes:
+    """Generate a QR code from vCard data and return as PNG bytes."""
+    qr = segno.make(vcf_data, error='h')  # High error correction for better scanning
+    buffer = io.BytesIO()
+    qr.save(buffer, kind='png', scale=8)  # Scale=8 for good resolution
+    buffer.seek(0)
+    return buffer.read()
+
+
 # ---------- UI ----------
 
 def section_title(txt: str):
@@ -169,7 +181,8 @@ def index():
         section_title("Notiz"),
         Textarea(name="note", placeholder="Optionale Notiz…", cls="textarea textarea-bordered w-full"),
         Div(
-            Button("VCF erzeugen", type="submit", cls="btn btn-primary"),
+            Button("VCF erzeugen", type="submit", cls="btn btn-primary", name="action", value="download"),
+            Button("QR-Code erzeugen", type="submit", cls="btn btn-secondary ml-2", name="action", value="qrcode"),
             cls="mt-6"
         ),
         method="post", action="/generate", cls="space-y-2"
@@ -177,7 +190,7 @@ def index():
 
     footer = Footer(
         Div(
-            A("Made by Mitja Martini", href="https://mitjamartini.com/about/", cls="link link-hover"),
+            A("by Mitja Martini", href="https://mitjamartini.com/about/", cls="link link-hover"),
             A("Privacy", href="https://mitjamartini.com/privacy/", cls="link link-hover"),
             cls="flex gap-4 justify-center"
         ),
@@ -185,7 +198,6 @@ def index():
     )
 
     content = Card(
-        #H1("vCard/VCF Generator"),
         P("Erzeugt eine .vcf-Datei im vCard 3.0 Format. Keine Daten werden gespeichert."),
         form,
         footer,
@@ -199,15 +211,30 @@ async def generate(req):
     form = await req.form()
     data = {k: (v if isinstance(v, str) else v.filename if hasattr(v, "filename") else str(v)) for k, v in form.items()}
 
+    action = data.get("action", "download")
     vcf = build_vcard(data)
-    filename = (data.get("last_name") or data.get("full_name") or "contact").strip() or "contact"
-    filename = re.sub(r"[^A-Za-z0-9_.-]", "_", filename) + ".vcf"
 
-    headers = {
-        "Content-Disposition": f"attachment; filename=\"{filename}\"",
-        "Content-Type": "text/vcard; charset=utf-8",
-    }
-    return Response(vcf, headers=headers)
+    if action == "qrcode":
+        # Generate QR code
+        qr_bytes = generate_qr_code(vcf)
+        filename = (data.get("last_name") or data.get("full_name") or "contact").strip() or "contact"
+        filename = re.sub(r"[^A-Za-z0-9_.-]", "_", filename) + ".png"
+
+        headers = {
+            "Content-Disposition": f"attachment; filename=\"{filename}\"",
+            "Content-Type": "image/png",
+        }
+        return Response(qr_bytes, headers=headers)
+    else:
+        # Download VCF file
+        filename = (data.get("last_name") or data.get("full_name") or "contact").strip() or "contact"
+        filename = re.sub(r"[^A-Za-z0-9_.-]", "_", filename) + ".vcf"
+
+        headers = {
+            "Content-Disposition": f"attachment; filename=\"{filename}\"",
+            "Content-Type": "text/vcard; charset=utf-8",
+        }
+        return Response(vcf, headers=headers)
 
 
 if __name__ == "__main__":
